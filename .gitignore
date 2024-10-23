@@ -162,3 +162,4 @@ cython_debug/
 #.idea/
 password-manager/data.json
 snake_game/data.txt
+2410_flash_card/data/words_to_learn.csv
