@@ -17,10 +17,12 @@ playerImg = pygame.image.load("player.png")
 # Values for the player placement
 playerX = 370
 playerY = 480
+playerX_change = 0
 
 
-def player():
-    screen.blit(playerImg, (playerX, playerY))
+def player(x, y):
+    # draw the image on the screen
+    screen.blit(playerImg, (x, y))
 
 
 # Game loop
@@ -34,5 +36,16 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    player()
+        # if key is pressed check if its right or left
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                playerX_change = -0.2
+            if event.key == pygame.K_RIGHT:
+                playerX_change = 0.2
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                playerX_change = 0
+
+    playerX += playerX_change
+    player(playerX, playerY)
     pygame.display.update()
