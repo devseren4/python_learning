@@ -1,8 +1,7 @@
 import pygame
 import random
 import math
-from pygame import mixer
-
+from move import Movement
 
 # Initialize the pygame
 pygame.init()
@@ -26,9 +25,9 @@ pygame.display.set_icon(icon)
 # Player
 playerImg = pygame.image.load("player.png")
 # Values for the player placement
-playerX = 370
-playerY = 480
-playerX_change = 0
+
+
+player = Movement(370, 480, 0, 0)
 
 
 # Enemy
@@ -81,7 +80,7 @@ def game_over_text():
     screen.blit(over_text, (200, 250))
 
 
-def player(x, y):
+def draw_player(x, y):
     # draw the image on the screen
     screen.blit(playerImg, (x, y))
 
@@ -122,9 +121,9 @@ while running:
         # if key is pressed check if its right or left
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                playerX_change = -5
+                player.x_change = -5
             if event.key == pygame.K_RIGHT:
-                playerX_change = 5
+                player.x_change = 5
             # fire the bullet when we press space
             if event.key == pygame.K_SPACE:
                 if bullet_state is "ready":
@@ -132,19 +131,19 @@ while running:
                     bullet_Sound.set_volume(0.2)
                     bullet_Sound.play()
                     # get the current x position of the spaceship
-                    bulletX = playerX
+                    bulletX = player.x_pos
                     fire_bullet(bulletX, bulletY)
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                playerX_change = 0
+                player.x_change = 0
 
     # adding collision with the wall for player
-    playerX += playerX_change
-    if playerX <= 0:
-        playerX = 0
-    elif playerX >= 736:
-        playerX = 736
+    player.x_pos += player.x_change
+    if player.x_pos <= 0:
+        player.x_pos = 0
+    elif player.x_pos >= 736:
+        player.x_pos = 736
 
     # enemy moving and  adding coliision with wall for enemy
     for i in range(num_enemies):
@@ -186,6 +185,6 @@ while running:
         fire_bullet(bulletX, bulletY)
         bulletY -= bulletY_change
 
-    player(playerX, playerY)
+    draw_player(player.x_pos, player.y_pos)
     show_score(textX, textY)
     pygame.display.update()
