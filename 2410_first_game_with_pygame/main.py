@@ -72,16 +72,6 @@ def fire_bullet():
     bullet.draw(screen, (16, 10))
 
 
-def isCollision(enemyX, enemyY):
-    distance = math.sqrt(
-        (math.pow(enemyX - bullet.x_pos, 2)) + (math.pow(enemyY - bullet.y_pos, 2))
-    )
-    if distance < 27:
-        return True
-    else:
-        return False
-
-
 # Game loop
 running = True
 while running:
@@ -140,9 +130,7 @@ while running:
             enemies[i].x_change = -2
             enemies[i].y_pos += enemies[i].y_change
 
-        # collision
-        collision = isCollision(enemies[i].x_pos, enemies[i].y_pos)
-        if collision:
+        if enemies[i].collides(bullet):
             explosion_Sound = pygame.mixer.Sound("explosion.wav")
             explosion_Sound.set_volume(0.1)
             explosion_Sound.play()

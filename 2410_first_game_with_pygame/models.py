@@ -1,3 +1,4 @@
+import math
 import pygame
 
 
@@ -14,3 +15,13 @@ class Box:
 
     def draw(self, screen: pygame.Surface, offset=(0, 0)):
         screen.blit(self.img, (self.x_pos + offset[0], self.y_pos + offset[1]))
+
+    def collides(self, other, distance=27):
+        current_distance = math.sqrt(
+            (math.pow(self.x_pos - other.x_pos, 2))
+            + (math.pow(self.y_pos - other.y_pos, 2))
+        )
+        if current_distance < distance:
+            return True
+        else:
+            return False
