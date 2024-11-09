@@ -36,6 +36,7 @@ enemyX = []
 enemyY = []
 enemyX_change = []
 enemyY_change = []
+
 num_enemies = 6
 
 for i in range(num_enemies):
@@ -51,10 +52,8 @@ for i in range(num_enemies):
 # Bullet
 bulletImg = pygame.image.load("bullet.png")
 # making the enemy spawn random
-bulletX = 0
-bulletY = 480
-bulletX_change = 0
-bulletY_change = 10
+bullet = Movement(0, 480, 0, 10)
+
 # ready - you can't see the bullet on the screen
 # fire - the bullet is currently moving
 bullet_state = "ready"
@@ -95,9 +94,9 @@ def fire_bullet(x, y):
     screen.blit(bulletImg, (x + 16, y + 10))
 
 
-def isCollision(enemyX, enemyY, bulletX, bulletY):
+def isCollision(enemyX, enemyY):
     distance = math.sqrt(
-        (math.pow(enemyX - bulletX, 2)) + (math.pow(enemyY - bulletY, 2))
+        (math.pow(enemyX - bullet.x_pos, 2)) + (math.pow(enemyY - bullet.y_pos, 2))
     )
     if distance < 27:
         return True
@@ -131,8 +130,8 @@ while running:
                     bullet_Sound.set_volume(0.2)
                     bullet_Sound.play()
                     # get the current x position of the spaceship
-                    bulletX = player.x_pos
-                    fire_bullet(bulletX, bulletY)
+                    bullet.x_pos = player.x_pos
+                    fire_bullet(bullet.x_pos, bullet.y_pos)
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -163,12 +162,12 @@ while running:
             enemyY[i] += enemyY_change[i]
 
         # collision
-        collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
+        collision = isCollision(enemyX[i], enemyY[i])
         if collision:
             explosion_Sound = pygame.mixer.Sound("explosion.wav")
             explosion_Sound.set_volume(0.1)
             explosion_Sound.play()
-            bulletY = 480
+            bullet.y_pos = 480
             bullet_state = "ready"
             score_value += 1
             enemyX[i] = random.randint(0, 735)
@@ -177,13 +176,13 @@ while running:
         enemy(enemyX[i], enemyY[i], i)
 
     # bullet movement
-    if bulletY <= 0:
-        bulletY = 480
+    if bullet.y_pos <= 0:
+        bullet.y_pos = 480
         bullet_state = "ready"
 
     if bullet_state is "fire":
-        fire_bullet(bulletX, bulletY)
-        bulletY -= bulletY_change
+        fire_bullet(bullet.x_pos, bullet.y_pos)
+        bullet.y_pos -= bullet.y_change
 
     draw_player(player.x_pos, player.y_pos)
     show_score(textX, textY)
