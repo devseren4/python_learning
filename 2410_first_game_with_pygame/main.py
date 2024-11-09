@@ -66,19 +66,10 @@ def game_over_text():
     screen.blit(over_text, (200, 250))
 
 
-def draw_player(x, y):
-    # draw the image on the screen
-    screen.blit(player.img, (x, y))
-
-
-def draw_enemy(x, y, i):
-    screen.blit(enemies[i].img, (x, y))
-
-
 def fire_bullet():
     global bullet
     bullet.data["state"] = "fire"
-    screen.blit(bullet.img, (bullet.x_pos + 16, bullet.y_pos + 10))
+    bullet.draw(screen, (16, 10))
 
 
 def isCollision(enemyX, enemyY):
@@ -161,7 +152,7 @@ while running:
             enemies[i].x_pos = random.randint(0, 735)
             enemies[i].y_pos = random.randint(50, 150)
 
-        draw_enemy(enemies[i].x_pos, enemies[i].y_pos, i)
+        enemies[i].draw(screen)
 
     # bullet Box
     if bullet.y_pos <= 0:
@@ -172,6 +163,6 @@ while running:
         fire_bullet()
         bullet.y_pos -= bullet.y_change
 
-    draw_player(player.x_pos, player.y_pos)
+    player.draw(screen)
     show_score(textX, textY)
     pygame.display.update()

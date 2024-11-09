@@ -11,3 +11,6 @@ class Box:
         img_file = kwargs.get("img_file")
         if img_file:
             self.img = pygame.image.load(img_file)
+
+    def draw(self, screen: pygame.Surface, offset=(0, 0)):
+        screen.blit(self.img, (self.x_pos + offset[0], self.y_pos + offset[1]))
