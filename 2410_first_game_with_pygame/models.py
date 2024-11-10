@@ -1,5 +1,61 @@
 import math
 import pygame
+from pygame.rect import Rect
+from pygame.sprite import Sprite
+
+
+class Player(Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("player.png").convert_alpha()
+        self.rect = self.image.get_rect(topleft=(370, 480))
+
+    def update(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            self.rect.x -= 5
+        if keys[pygame.K_RIGHT]:
+            self.rect.x += 5
+
+        if self.rect.x <= 0:
+            self.rect.x = 0
+        elif self.rect.x >= 736:
+            self.rect.x = 736
+
+
+class Bullet(Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("bullet.png").convert_alpha()
+        self.rect = self.image.get_rect(topleft=(0, 480))
+        self.state = "ready"
+
+    def reset(self):
+        self.rect.y = 480
+        self.state = "ready"
+
+    def fire(self, player: Sprite):
+        bullet_Sound = pygame.mixer.Sound("laser.wav")
+        bullet_Sound.set_volume(0.2)
+        bullet_Sound.play()
+        self.rect.x = player.rect.x
+        self.state = "fire"
+
+    def update(self, player: Sprite):
+        keys = pygame.key.get_pressed()
+
+        if self.state == "ready":
+            if keys[pygame.K_SPACE]:
+                self.fire(player)
+            self.image.set_alpha(0)
+        else:
+            self.image.set_alpha(255)
+
+        if self.rect.y <= 0:
+            self.reset()
+
+        if self.state == "fire":
+            self.rect.y -= 10
 
 
 class Box:

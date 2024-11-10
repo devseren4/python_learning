@@ -2,7 +2,7 @@ from typing import List
 import pygame
 import random
 import math
-from models import Box
+from models import Box, Player, Bullet
 
 # Initialize the pygame
 pygame.init()
@@ -23,8 +23,8 @@ pygame.display.set_caption("Galaxion")
 icon = pygame.image.load("alien.png")
 pygame.display.set_icon(icon)
 
-
-player = Box(x_pos=370, y_pos=480, img_file="player.png")
+player = Player()
+player_group = pygame.sprite.GroupSingle(player)
 
 enemies: List[Box] = []
 
@@ -42,9 +42,8 @@ for i in range(6):
     )
     enemies.append(enemy)
 
-
-bullet = Box(y_pos=480, y_change=10, img_file="bullet.png", data={"state": "ready"})
-
+bullet = Bullet()
+bullet_group = pygame.sprite.GroupSingle(bullet)
 
 # Score
 score_value = 0
@@ -85,33 +84,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        # if key is pressed check if its right or left
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                player.x_change = -5
-            if event.key == pygame.K_RIGHT:
-                player.x_change = 5
-            # fire the bullet when we press space
-            if event.key == pygame.K_SPACE:
-                if bullet.data["state"] is "ready":
-                    bullet_Sound = pygame.mixer.Sound("laser.wav")
-                    bullet_Sound.set_volume(0.2)
-                    bullet_Sound.play()
-                    # get the current x position of the spaceship
-                    bullet.x_pos = player.x_pos
-                    fire_bullet()
-
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                player.x_change = 0
-
-    # adding collision with the wall for player
-    player.x_pos += player.x_change
-    if player.x_pos <= 0:
-        player.x_pos = 0
-    elif player.x_pos >= 736:
-        player.x_pos = 736
-
     # enemy moving and  adding coliision with wall for enemy
     for i in range(len(enemies)):
 
@@ -130,12 +102,13 @@ while running:
             enemies[i].x_change = -2
             enemies[i].y_pos += enemies[i].y_change
 
-        if enemies[i].collides(bullet):
+        if bullet.rect.colliderect(
+            pygame.rect.Rect(enemies[i].x_pos, enemies[i].y_pos, 64, 64)
+        ):
             explosion_Sound = pygame.mixer.Sound("explosion.wav")
             explosion_Sound.set_volume(0.1)
             explosion_Sound.play()
-            bullet.y_pos = 480
-            bullet.data["state"] = "ready"
+            bullet.reset()
             score_value += 1
             enemies[i].x_pos = random.randint(0, 735)
             enemies[i].y_pos = random.randint(50, 150)
@@ -143,14 +116,12 @@ while running:
         enemies[i].draw(screen)
 
     # bullet Box
-    if bullet.y_pos <= 0:
-        bullet.y_pos = 480
-        bullet.data["state"] = "ready"
 
-    if bullet.data["state"] is "fire":
-        fire_bullet()
-        bullet.y_pos -= bullet.y_change
+    bullet_group.update(player)
+    bullet_group.draw(screen)
 
-    player.draw(screen)
+    player_group.update()
+    player_group.draw(screen)
+
     show_score(textX, textY)
     pygame.display.update()
