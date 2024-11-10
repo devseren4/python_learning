@@ -1,7 +1,9 @@
-import math
+import random
 import pygame
-from pygame.rect import Rect
 from pygame.sprite import Sprite
+
+
+SCORE_POINT_EVENT = pygame.event.Event(pygame.USEREVENT + 1)
 
 
 class Player(Sprite):
@@ -58,26 +60,38 @@ class Bullet(Sprite):
             self.rect.y -= 10
 
 
-class Box:
-    def __init__(self, **kwargs):
-        self.data = kwargs.get("data", {})
-        self.x_pos = kwargs.get("x_pos", 0)
-        self.y_pos = kwargs.get("y_pos", 0)
-        self.x_change = kwargs.get("x_change", 0)
-        self.y_change = kwargs.get("y_change", 0)
-        img_file = kwargs.get("img_file")
-        if img_file:
-            self.img = pygame.image.load(img_file)
-
-    def draw(self, screen: pygame.Surface, offset=(0, 0)):
-        screen.blit(self.img, (self.x_pos + offset[0], self.y_pos + offset[1]))
-
-    def collides(self, other, distance=27):
-        current_distance = math.sqrt(
-            (math.pow(self.x_pos - other.x_pos, 2))
-            + (math.pow(self.y_pos - other.y_pos, 2))
+class Enemy(Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("enemy.png")
+        self.rect = self.image.get_rect(
+            topleft=(random.randint(0, 735), random.randint(50, 150))
         )
-        if current_distance < distance:
-            return True
-        else:
-            return False
+        self.direction = "right"
+
+    def respawn(self):
+        self.rect.x = random.randint(0, 735)
+        self.rect.y = random.randint(50, 150)
+
+    def explode(self):
+        explosion_Sound = pygame.mixer.Sound("explosion.wav")
+        explosion_Sound.set_volume(0.1)
+        explosion_Sound.play()
+
+    def move(self):
+        x_change = 2 if self.direction is "right" else -2
+        self.rect.x += x_change
+        if self.rect.x <= 0:
+            self.direction = "right"
+            self.rect.y += 30
+        elif self.rect.x >= 736:
+            self.direction = "left"
+            self.rect.y += 30
+
+    def update(self, bullet: Bullet):
+        self.move()
+        if bullet.rect.colliderect(self.rect):
+            self.explode()
+            bullet.reset()
+            self.respawn()
+            pygame.event.post(SCORE_POINT_EVENT)
