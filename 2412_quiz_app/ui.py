@@ -20,6 +20,7 @@ class QuizInterface:
         self.question_text = self.canva.create_text(
             150,
             125,
+            width=280,
             text="Some question",
             fill=THEME_COLOR,
             font=(FONT_NAME, 20, "italic"),
@@ -28,13 +29,16 @@ class QuizInterface:
 
         self.true_button_img = PhotoImage(file="images/true.png")
         self.true_button = Button(
-            image=self.true_button_img,
-            highlightthickness=0,
+            image=self.true_button_img, highlightthickness=0, command=self.true_pressed
         )
         self.true_button.grid(row=2, column=0)
 
         self.false_button_img = PhotoImage(file="images/false.png")
-        self.false_button = Button(image=self.false_button_img, highlightthickness=0)
+        self.false_button = Button(
+            image=self.false_button_img,
+            highlightthickness=0,
+            command=self.false_pressed,
+        )
         self.false_button.grid(row=2, column=1)
 
         self.get_next_question()
@@ -42,5 +46,20 @@ class QuizInterface:
         self.window.mainloop()
 
     def get_next_question(self):
+        self.canva.config(bg="white")
         q_text = self.quiz.next_question()
         self.canva.itemconfig(self.question_text, text=q_text)
+
+    def true_pressed(self):
+        self.give_feedback(self.quiz.check_answer("True"))
+
+    def false_pressed(self):
+        is_right = self.quiz.check_answer("False")
+        self.give_feedback(is_right)
+
+    def give_feedback(self, is_right):
+        if is_right:
+            self.canva.config(bg="green")
+        else:
+            self.canva.config(bg="red")
+        self.window.after(1000, self.get_next_question)
